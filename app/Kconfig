@@ -1,0 +1,9 @@
+config BLINK_SLEEP_TIME_MS
+    int "Led: prompted Kconfig symbol"
+    default 1000
+    range 100 5000
+    help
+        Help string 1
+        Help string 2
+
+source "Kconfig.zephyr"
