@@ -60,4 +60,9 @@ endmenu # Expert settings
 endif # ADVANCED_LED_SETTINGS
 endif # LED_SUBSYSTEM
 
+config APP_HEARBEAT_PERIOD_MS
+    int "Application hearbeat period (100-2000)"
+    default 500
+    range 100 2000
+
 source "Kconfig.zephyr"
