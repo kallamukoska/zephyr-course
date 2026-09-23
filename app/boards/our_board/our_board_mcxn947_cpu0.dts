@@ -1,0 +1,40 @@
+/dts-v1/;
+
+#include <nxp/nxp_mcxn94x.dtsi>
+
+/ {
+	model = "Our Board From Scratch";
+	compatible = "nxp,mcxn947", "nxp,mcx";
+
+	cpus {
+		/delete-node/ cpu@1;
+	};
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash;
+		zephyr,flash-controller = &fmu;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		red_led: led_0 {
+			gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+			label = "Red LED";
+		};
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+/* Enabled by the SoC dtsi but needs pinctrl; unused on this board. */
+&enet {
+	status = "disabled";
+};
+
+/* System timer; SYS_CLOCK_HW_CYCLES_PER_SEC = 150MHz core clock. */
+&systick {
+	status = "okay";
+};
