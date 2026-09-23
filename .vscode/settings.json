@@ -1,5 +1,6 @@
 {
     "C_Cpp.default.compileCommands": [
         "${workspaceFolder}/build/compile_commands.json"
-    ]
+    ],
+    "cmake.sourceDirectory": "C:/Users/Kris/zephyr-course/app"
 }
