@@ -1,6 +1,6 @@
 board:
-  name: frdm_mcxn947
-  full_name: FRDM-MCXN947
+  name: my_board
+  full_name: MY_BOARD
   vendor: nxp
   socs:
   - name: mcxn947
