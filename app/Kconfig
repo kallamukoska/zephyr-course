@@ -66,3 +66,4 @@ config APP_HEARBEAT_PERIOD_MS
     range 100 2000
 
 source "Kconfig.zephyr"
+rsource "drivers/our_driver/Kconfig"

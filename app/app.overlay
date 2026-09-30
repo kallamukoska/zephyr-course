@@ -3,3 +3,11 @@
 		app-led = &red_led;
 	};
 };
+
+/{
+	our_driver0: our_driver{
+		compatible = "our,driver";
+		status = "okay";
+		gpios = <&gpio0 27 GPIO_ACTIVE_LOW>;
+	};
+};
