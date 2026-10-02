@@ -2,6 +2,7 @@
 #include<zephyr/drivers/sensor.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include "our_driver.h"
 
 /* The devicetree node identifier for the "led0" alias. */
 #define LED_NODE DT_ALIAS(app_led)
@@ -15,9 +16,16 @@ namespace Driver::Test
     void ToggleLed()
     {
         const struct device* driver = DEVICE_DT_GET(DT_NODELABEL(our_driver0));
-        struct sensor_value sensorValue;
-        auto fetch = sensor_sample_fetch(driver);
-        auto get = sensor_channel_get(driver, SENSOR_CHAN_AMBIENT_TEMP, &sensorValue);
+        struct sensor_value value;
+
+        our_driver_set_enabled(driver, true);                         // switch is ON
+        sensor_sample_fetch(driver);                                  // LED turns ON 
+        k_msleep(1000);
+        sensor_channel_get(driver, SENSOR_CHAN_AMBIENT_TEMP, &value); // LED turns OFF
+        k_msleep(1000);
+        our_driver_set_enabled(driver, false);                        // switch is OFF
+        sensor_sample_fetch(driver);                                  // LED stays OFF (fetch is ignored)
+        k_msleep(1000);
     }
 
 } // Driver::Test

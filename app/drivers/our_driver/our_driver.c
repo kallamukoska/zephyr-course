@@ -12,9 +12,19 @@ struct Config
     struct gpio_dt_spec led;
 };
 
+struct Data
+{
+    bool enabled;
+};
+
 static const struct Config ourConfig = 
 {
     .led = GPIO_DT_SPEC_INST_GET(0, gpios),
+};
+
+static struct Data ourData =
+{
+    .enabled = true,
 };
 
 static int channel_get_my_implementation(const struct device *dev,
@@ -33,9 +43,20 @@ static int sample_fetch_my_implementation(const struct device *dev,
 {
     LOG_INF("Hello from sample_fetch, channel: %d", chan);
     const struct Config *cfg = dev->config;
-    gpio_pin_set_dt(&cfg->led, 1);
+    const struct Data *data = dev->data;
+
+    if(data->enabled)
+    {
+        gpio_pin_set_dt(&cfg->led, 1);
+    }
 
     return 0;
+}
+
+void our_driver_set_enabled(const struct device *dev, bool enabled)
+{
+    struct Data *data = dev->data;
+    data->enabled = enabled;
 }
 
 static DEVICE_API(sensor, api_kris_demo) = {
@@ -52,7 +73,7 @@ static int init(const struct device* dev)
 		return -ENODEV;
 	}
 	LOG_INF("Device initialized!");
-	return gpio_pin_configure_dt(&cfg->led, GPIO_OUTPUT_ACTIVE);
+	return gpio_pin_configure_dt(&cfg->led, GPIO_OUTPUT_INACTIVE);
 }
 
-DEVICE_DT_INST_DEFINE(0, init, NULL, NULL, &ourConfig, POST_KERNEL, 80, &api_kris_demo);
+DEVICE_DT_INST_DEFINE(0, init, NULL, &ourData, &ourConfig, POST_KERNEL, 80, &api_kris_demo);
