@@ -47,7 +47,11 @@ ZTEST(ring_buf_init, test_reinit_clears_state)
 	 * verify the buffer is empty and count is 0.
 	 * See TEST_SPEC.md "Suite ring_buf_init" #2.
 	 */
-	ztest_test_skip();
+	zassume_equal(rb_push(99), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_init(4), 0, "Reinitializing the buffer must succeed.");
+
+	zassert_true(rb_is_empty(), "Fresh buffer must be empty.");
+	zassert_equal(rb_count(), 0, "Fresh buffer count must be 0.");
 }
 
 /*
@@ -64,7 +68,11 @@ ZTEST(ring_buf_push_pop, test_single_push_pop)
 	/* TODO(l8-task1): rb_push(42), rb_pop(&v) -> v == 42, buffer empty after.
 	 * See TEST_SPEC.md "Suite ring_buf_push_pop" #1.
 	 */
-	ztest_test_skip();
+	int v;
+	zassume_equal(rb_push(42), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_pop(&v), 0, "Poping a value out of the ring buffer must succeed.");
+	zassert_equal(v, 42, "Poped value must be correct.");
+	zassert_true(rb_is_empty(), "Buffer with last value poped must be empty.");
 }
 
 ZTEST(ring_buf_push_pop, test_fifo_order)
@@ -73,7 +81,20 @@ ZTEST(ring_buf_push_pop, test_fifo_order)
 	 * and verify the values come out as 1, 2, 3 in that order.
 	 * See TEST_SPEC.md "Suite ring_buf_push_pop" #2.
 	 */
-	ztest_test_skip();
+	int v1, v2, v3;
+	zassume_equal(rb_push(1), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_push(2), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_push(3), 0, "Pushing a value into the ring buffer must succeed.");
+
+	zassume_equal(rb_pop(&v1), 0, "Poping a value out of the ring buffer must succeed.");
+	zassume_equal(rb_pop(&v2), 0, "Poping a value out of the ring buffer must succeed.");
+	zassume_equal(rb_pop(&v3), 0, "Poping a value out of the ring buffer must succeed.");
+	
+	zassert_equal(v1, 1, "Poped value must be correct.");
+	zassert_equal(v2, 2, "Poped value must be correct.");
+	zassert_equal(v3, 3, "Poped value must be correct.");
+	
+	zassert_true(rb_is_empty(), "Ring buffer must be empty.");
 }
 
 ZTEST(ring_buf_push_pop, test_push_full_returns_enospc)
@@ -82,7 +103,14 @@ ZTEST(ring_buf_push_pop, test_push_full_returns_enospc)
 	 * one more value -> -ENOSPC.
 	 * See TEST_SPEC.md "Suite ring_buf_push_pop" #3.
 	 */
-	ztest_test_skip();
+	zassume_equal(rb_push(1), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_push(2), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_push(3), 0, "Pushing a value into the ring buffer must succeed.");
+	zassume_equal(rb_push(4), 0, "Pushing a value into the ring buffer must succeed.");
+
+	zassume_true(rb_is_full(), "Ring buffer must be full.");
+	zassert_equal(rb_push(99), -ENOSPC, "Ring buffer overflow.");
+	zassert_equal(rb_count(), 4, "Correct count of the ring buffer.");
 }
 
 /*
@@ -100,7 +128,17 @@ ZTEST(ring_buf_boundaries, test_peek_does_not_consume)
 	 * -> v == 7; rb_count() still == 1.
 	 * See TEST_SPEC.md "Suite ring_buf_boundaries" #1.
 	 */
-	ztest_test_skip();
+	int v;
+
+	zassert_equal(rb_push(7), 0, "Pushing a value into the ring buffer must succeed.");
+	
+	zassert_equal(rb_peek(&v), 0, "Peeking into the ring buffer must succeed.");
+	zassert_equal(v, 7, "Peeked value must be correct.");
+
+	zassert_equal(rb_peek(&v), 0, "Peeking into the ring buffer must succeed.");
+	zassert_equal(v, 7, "Peeked value must be correct.");
+
+	zassert_equal(rb_count(), 1, "Peek must not consume.");
 }
 
 ZTEST(ring_buf_boundaries, test_pop_null_returns_einval)
@@ -108,7 +146,7 @@ ZTEST(ring_buf_boundaries, test_pop_null_returns_einval)
 	/* TODO(l8-task1): rb_pop(NULL) -> -EINVAL.
 	 * See TEST_SPEC.md "Suite ring_buf_boundaries" #2.
 	 */
-	ztest_test_skip();
+	zassert_equal(rb_pop(NULL), -EINVAL, "Invalid value poped from the ring buffer.");
 }
 
 ZTEST(ring_buf_boundaries, test_is_full_after_fill)
@@ -116,5 +154,11 @@ ZTEST(ring_buf_boundaries, test_is_full_after_fill)
 	/* TODO(l8-task1): push 4 values -> rb_is_full() == true, rb_count() == 4.
 	 * See TEST_SPEC.md "Suite ring_buf_boundaries" #3.
 	 */
-	ztest_test_skip();
+	zassert_equal(rb_push(1), 0, "Pushing a value into the ring buffer must succeed.");
+	zassert_equal(rb_push(2), 0, "Pushing a value into the ring buffer must succeed.");
+	zassert_equal(rb_push(3), 0, "Pushing a value into the ring buffer must succeed.");
+	zassert_equal(rb_push(4), 0, "Pushing a value into the ring buffer must succeed.");
+
+	zassert_true(rb_is_full(), "Ring buffer must be full.");
+	zassert_equal(rb_count(), 4, "Correct count of the ring buffer.");
 }
